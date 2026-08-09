@@ -1,12 +1,17 @@
 package org.example.pricefeed;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class PriceEngine {
     ConcurrentHashMap<String, FinancialInstrument> instruments;
     PriceHistory history;
+
+    public PriceEngine(PriceHistory history, ConcurrentHashMap<String, FinancialInstrument> instruments) {
+        this.history = history;
+        this.instruments = instruments;
+    }
 
     public void updateSpecificPrice(String symbol){
         FinancialInstrument instrument = instruments.get(symbol);
@@ -24,6 +29,7 @@ public class PriceEngine {
     public void updatePrice(FinancialInstrument instrument){
         BigDecimal newPrice = PriceGenerator.generatePrice(instrument.getPrice());
         instrument.setPrice(newPrice);
+        instrument.setLastUpdate(LocalDateTime.now());
         history.addPrice(instrument, newPrice);
     }
 
