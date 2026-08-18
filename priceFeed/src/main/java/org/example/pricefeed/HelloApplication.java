@@ -38,22 +38,23 @@ public class HelloApplication extends Application {
 
         priceEngine.addInstrument(btc);
 
-        FXMLLoader fxmlLoader =
-                new FXMLLoader(
-                        HelloApplication.class.getResource("hello-view.fxml")
-                );
+        HelloController controller = loadScene(stage);
 
+        Thread priceThread = startPriceThread(priceEngine, btc, controller);
+        setupGracefulShutdown(stage, priceThread);
+    }
+
+    private HelloController loadScene(Stage stage) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(
+                HelloApplication.class.getResource("hello-view.fxml")
+        );
         Scene scene = new Scene(fxmlLoader.load());
-
-        HelloController controller = fxmlLoader.getController();
-
 
         stage.setTitle("Price chart");
         stage.setScene(scene);
         stage.show();
 
-        Thread priceThread = startPriceThread(priceEngine, btc, controller);
-        setupGracefulShutdown(stage, priceThread);
+        return fxmlLoader.getController();
     }
 
     private Thread startPriceThread(PriceEngine priceEngine, FinancialInstrument btc, HelloController controller) {
