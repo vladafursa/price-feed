@@ -12,6 +12,12 @@ import java.time.LocalDateTime;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class HelloApplication extends Application {
+
+    private static final String BTC_SYMBOL = "BTC/USD";
+    private static final long UPDATE_INTERVAL_MS = 100;
+    private static final long SHUTDOWN_JOIN_TIMEOUT_MS = 1000;
+
+
     private volatile boolean running = true;
     @Override
     public void start(Stage stage) throws IOException {
@@ -64,15 +70,17 @@ public class HelloApplication extends Application {
         priceThread.setName("PriceGenerator");
         priceThread.start();
 
+        setupGracefulShutdown(stage, priceThread);
+    }
+
+    private void setupGracefulShutdown(Stage stage, Thread priceThread) {
         stage.setOnCloseRequest(event -> {
             running = false;
-            if (priceThread != null) {
-                priceThread.interrupt();
-                try {
-                    priceThread.join(1000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
+            priceThread.interrupt();
+            try {
+                priceThread.join(SHUTDOWN_JOIN_TIMEOUT_MS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
             Platform.exit();
         });
