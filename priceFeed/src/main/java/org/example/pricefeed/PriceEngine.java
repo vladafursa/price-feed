@@ -36,4 +36,9 @@ public class PriceEngine {
     public void addInstrument(FinancialInstrument instrument){
         instruments.put(instrument.getName(), instrument);
     }
+
+    public FinancialInstrument getInstrument(String symbol) {
+        return instruments.get(symbol);
+    }
+
 }
