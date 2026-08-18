@@ -21,20 +21,8 @@ public class HelloApplication extends Application {
     private volatile boolean running = true;
     @Override
     public void start(Stage stage) throws IOException {
-
-        PriceHistory history = new PriceHistory();
-
-        ConcurrentHashMap<String, FinancialInstrument> instruments =
-                new ConcurrentHashMap<>();
-
-        PriceEngine priceEngine =
-                new PriceEngine(history, instruments);
-
-        FinancialInstrument btc = new FinancialInstrument(
-                "BTC/USD",
-                new BigDecimal("118500"),
-                LocalDateTime.now()
-        );
+        PriceEngine priceEngine = createPriceEngine();
+        FinancialInstrument btc = priceEngine.getInstrument(BTC_SYMBOL);
 
         priceEngine.addInstrument(btc);
 
@@ -42,6 +30,21 @@ public class HelloApplication extends Application {
 
         Thread priceThread = startPriceThread(priceEngine, btc, controller);
         setupGracefulShutdown(stage, priceThread);
+    }
+
+    private PriceEngine createPriceEngine() {
+        PriceHistory history = new PriceHistory();
+        ConcurrentHashMap<String, FinancialInstrument> instruments = new ConcurrentHashMap<>();
+        PriceEngine priceEngine = new PriceEngine(history, instruments);
+
+        FinancialInstrument btc = new FinancialInstrument(
+                BTC_SYMBOL,
+                new BigDecimal("118500"),
+                LocalDateTime.now()
+        );
+        priceEngine.addInstrument(btc);
+
+        return priceEngine;
     }
 
     private HelloController loadScene(Stage stage) throws IOException {
