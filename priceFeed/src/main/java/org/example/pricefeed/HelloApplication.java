@@ -52,25 +52,32 @@ public class HelloApplication extends Application {
         stage.setScene(scene);
         stage.show();
 
-        Thread priceThread = new Thread(() -> {
-            int time = 0;
-            while (running) {
-                priceEngine.updateAllPrices();
-                BigDecimal price = btc.getPrice();
+        Thread priceThread = startPriceThread(priceEngine, btc, controller);
+        setupGracefulShutdown(stage, priceThread);
+    }
 
-                controller.updateChart(++time, price);
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    break;
-                }
-            }
-        });
+    private Thread startPriceThread(PriceEngine priceEngine, FinancialInstrument btc, HelloController controller) {
+        Thread priceThread = new Thread(() -> runPriceLoop(priceEngine, btc, controller));
         priceThread.setName("PriceGenerator");
         priceThread.start();
+        return priceThread;
+    }
 
-        setupGracefulShutdown(stage, priceThread);
+    private void runPriceLoop(PriceEngine priceEngine, FinancialInstrument btc, HelloController controller) {
+        int time = 0;
+        while (running) {
+            priceEngine.updateAllPrices();
+            BigDecimal price = btc.getPrice();
+
+            controller.updateChart(++time, price);
+
+            try {
+                Thread.sleep(UPDATE_INTERVAL_MS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
     }
 
     private void setupGracefulShutdown(Stage stage, Thread priceThread) {
