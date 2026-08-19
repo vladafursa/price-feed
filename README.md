@@ -20,7 +20,14 @@ A small JavaFX desktop app that simulates a live price feed for a financial inst
 ## Project structure
 
 ```
-
+├── Analytics.java # preparation for future analytics
+├── ChartDataService.java # UI logic
+├── FinancialInstrument.java # instrument model
+├── HelloApplication.java # entry point: wires up the engine, loads the scene, manages the price thread lifecycle
+├── HelloController.java # FXML controller — bridges background-thread updates onto the FX Application Thread
+├── PriceEngine.java # main business logic: holds instruments, applies price updates, records history
+├── PriceGenerator.java #  generator of the next simulated price
+└── PriceHistory.java # historical price data storage per instrument
 ```
 
 
@@ -32,3 +39,4 @@ A small JavaFX desktop app that simulates a live price feed for a financial inst
 - Multiple financial instruments
 - Real-time analytics
 - Usage of history
+- Real data instead of randomly generated
